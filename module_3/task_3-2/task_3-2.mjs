@@ -69,11 +69,11 @@ printOut(newLine);
 
 printOut("--- Part 5 ----------------------------------------------------------------------------------------------");
 /* Put your code below here!*/
-for (let row = 1; row <= 7; row++) { // Loop for 7 rows
-    let rowOutput = ""; // Initialize an empty string to store each row's output
+for (let row = 1; row <= 7; row++) { 
+    let rowOutput = "";
     
-    for (let col = 1; col <= 9; col++) { // Loop for 9 columns
-        rowOutput += "K" + col + "R" + row + " "; // Append each cell to the row output
+    for (let col = 1; col <= 9; col++) {
+        rowOutput += "K" + col + "R" + row + " ";
     }
     
     printOut(rowOutput.trim()); 

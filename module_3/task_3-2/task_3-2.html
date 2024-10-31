@@ -10,8 +10,20 @@
       <span id="txtOut" style="white-space: nowrap"></span>
     </div>
     <ol>
-      <li>[Write the question here, and copy this for more questions]</li>
-      <p>[Write your answer here, and copy this for more answers]</p>
+      <li> In part 1, is it possible to solve the problem using a single "for" loop?</li>
+      <p>yes it can be a single for loop, it can be done by counting up and down on both variables </p>
+      <li>In part 2, can we create what is known as an "infinite" loop within the condition of the "while" loop?
+        Describe what would or would not be necessary to achieve this. Provide a thorough explanation of
+        your answer.</li>
+      <p> An infinite while loop can happen if you forget to change the variable in the loop condition or if there's no way to exit the loop. For example, if you don’t increment the variable the loop checks, or if there’s no condition to break the loop, it will keep running indefinitely. To avoid this, make sure the condition variable is updated within the loop, or use a break statement to exit when needed.</p>
+      <li>Discuss briefly how quickly or slowly a computer might be able to compute this, considering the
+        number of guesses and the time it takes. How does the program behave while it is guessing? Can
+        the program perform other tasks concurrently?</li>
+      <p> The computer can compute this very quickly, the time it takes is dependent on the number of guesses and the time it takes. The program behaves by guessing the number and checking if it's correct, if it's not it will guess again. The program can perform other tasks concurrently if it's not a blocking task.</p>
+      <li> Explain the relationship between rows and columns in nested "for" loops. Can we, for instance,
+        change the order, considering rows to be innermost or columns to be innermost, or does this not
+        matter?</li>
+      <p> The relationship between rows and columns in nested "for" loops is that the outer loop is the rows and the inner loop is the columns. We can change the order, considering rows to be innermost or columns to be innermost, but it will change the output of the loop. </p>
     </ol>
     <script type="module" src="./task_3-2.mjs" defer></script>
   </body>

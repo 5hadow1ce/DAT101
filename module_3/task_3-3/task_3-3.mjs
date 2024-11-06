@@ -84,12 +84,13 @@ function CelsiusFahrenheitKelvin(tempature, unit) {
     }
     return "Celsius: " + Number.parseInt(celsius) + ", Fahrenheit: " + Number.parseInt(fahrenheit) + ", Kelvin: " + Number.parseInt(kelvin);
 }
-printOut(CelsiusFahrenheitKelvin(150, "K"));
+printOut(CelsiusFahrenheitKelvin(150, "k"));
 printOut(newLine);
 
 printOut("--- Part 6 ----------------------------------------------------------------------------------------------");
 /* Put your code below here!*/
 function VATCalculator(price, vat) {
+    vat = vat.toLowerCase();
     if (vat === "food")
         return (100 * price / 115).toFixed(2);
     if (vat === "normal")
@@ -100,21 +101,21 @@ function VATCalculator(price, vat) {
         return NaN;
 }
 let price = 150;
-let VAT = "normal";
+let VAT = "Normal";
 VATCalculator(price, VAT);
 if (isNaN(VATCalculator(price, VAT))) {
     printOut("Invalid VAT group");
 }
  else printOut("price is " + price + " and VAT is " + VAT + " so price without VAT is " + VATCalculator(price, VAT));
 let price2 = 355;
-let VAT2 = "food";
+let VAT2 = "Food";
 VATCalculator(price2, VAT2);
 if (isNaN(VATCalculator(price2, VAT2))) {
     printOut("Invalid VAT group");
 }
     else printOut("price is " + price2 + " and VAT is " + VAT2 + " so price without VAT is " + VATCalculator(price2, VAT2));
 let price3 = 1000;
-let VAT3 = "hotel";
+let VAT3 = "Hotel";
 VATCalculator(price3, VAT3);
 if (isNaN(VATCalculator(price3, VAT3))) {
     printOut("Invalid VAT group");
@@ -226,7 +227,7 @@ function testMathExpressions(lines) { //trengte faktisk hjelp til denne
             start++;
         }
 
-        printOut(`Line ${line}: ${leftTerms.join(" + ")} = ${rightTerms.join(" + ")}`);
+        //printOut(`Line ${line}: ${leftTerms.join(" + ")} = ${rightTerms.join(" + ")}`);
 
         if (leftSum !== rightSum) {
             pirntOut(`Mismatch on line ${line}: Left sum = ${leftSum}, Right sum = ${rightSum}`);

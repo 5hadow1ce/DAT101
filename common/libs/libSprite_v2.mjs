@@ -1,5 +1,5 @@
 "use strict";
-import lib2D from "./lib2d.mjs";
+import lib2D from "./lib2d_v2.mjs";
 /**
  * @library libSprite
  * @description A library for classes that manage sprite animations.
@@ -73,20 +73,20 @@ class TSpriteCanvas {
  Utvid konstruktøren til å ta inn et punkt for destinasjon til sprite.
 */
 
-class TSprite {
+class TSpriteBase extends lib2D.TPosition {
   #spcvs;
   #spi;
-  #pos;
   #index;
   #speedIndex;
   constructor(aSpriteCanvas, aSpriteInfo, aPosition) {
+    super(aPosition.x, aPosition.y);
+    //Can not create an instance of an abstract class
+    if (this.constructor === TSpriteBase) throw new TypeError("Can not create an instance of an abstract class");
     this.#spcvs = aSpriteCanvas;
     this.#spi = aSpriteInfo;
-    this.#pos = aPosition.clone(); //Vi trenger en kopi av posisjonen
     this.#index = 0;
     this.animateSpeed = 0;
     this.#speedIndex = 0;
-    this.boundingBox = new lib2D.TRectangle(this.#pos.x, this.#pos.y, this.#spi.width, this.#spi.height);
     this.rotation = 0;
   }
 
@@ -101,43 +101,7 @@ class TSprite {
         }
       }
     }
-    this.#spcvs.drawSprite(this.#spi, this.#pos.x, this.#pos.y, this.#index, this.rotation);
-  }
-
-  translate(aDx, aDy) {
-    this.#pos.x += aDx;
-    this.#pos.y += aDy;
-    this.boundingBox.x += aDx;
-    this.boundingBox.y += aDy;
-  }
-
-  get posX() {
-    return this.#pos.x;
-  }
-
-  get posY() {
-    return this.#pos.y;
-  }
-
-  set posX(aX) {
-    this.#pos.x = aX;
-    this.boundingBox.x = aX;
-  }
-
-  set posY(aY) {
-    this.#pos.y = aY;
-    this.boundingBox.y = aY;
-  }
-
-  setPos(aX, aY) {
-    this.#pos.x = aX;
-    this.#pos.y = aY;
-    this.boundingBox.x = aX;
-    this.boundingBox.y = aY;
-  }
-
-  getPos(){
-    return this.#pos;
+    this.#spcvs.drawSprite(this.#spi, this.x, this.y, this.#index, this.rotation);
   }
 
   get index() {
@@ -145,18 +109,51 @@ class TSprite {
   }
   
   set index(aIndex){
+    if(aIndex < 0 || aIndex >= this.#spi.count){
+      //Reset index to 0, because of ++ or -- operation
+      aIndex = 0;
+    }
     this.#index = aIndex;
   }
 
   hasCollided(aSprite){
-    return this.boundingBox.isInsideRect(aSprite.boundingBox);
+    return this.boundingBox.isShapeInside(aSprite.boundingBox);
   }
 
-  getCenter(){
-    return this.boundingBox.center;
+  get boundingBox(){
+    throw new TypeError("Property boundingBox must be overridden");
+  }
+
+  get left(){
+    return this.x;
+  }
+
+  get right(){
+    return this.x + this.#spi.width;
+  }
+
+  get top(){
+    return this.y;
+  }
+
+  get bottom(){
+    return this.y + this.#spi.height;
   }
 
 } //End of TSprite class
+
+class TSprite extends TSpriteBase {
+  #boundingBox;
+  constructor(aSpriteCanvas, aSpriteInfo, aPosition) {
+    super(aSpriteCanvas, aSpriteInfo, aPosition);
+    this.#boundingBox = new lib2D.TRectangle(this, aSpriteInfo.width, aSpriteInfo.height);
+  }
+ 
+  get boundingBox(){
+    return this.#boundingBox;
+  }
+  
+}
 
 export default {
   /**

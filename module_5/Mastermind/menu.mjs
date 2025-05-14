@@ -137,7 +137,7 @@ export class TMenu {
   onButtonNewGameClick = () =>{
     this.#roundNumber = 1;
     this.#colorHints = [];
-    this.#panelCheat.visible = !this.#panelCheat.visible;
+    this.#panelCheat.visible = true;
     newGame();
   }
 
@@ -156,7 +156,7 @@ export class TMenu {
     this.#roundNumber++;
     if(this.#roundNumber > 10){
       console.log("Du har tapt, prøv igjen!");
-      this.#panelCheat.visible = !this.#panelCheat.visible;
+      this.#panelCheat.visible = true;
       return;
     }
     const rowText = `Row${this.#roundNumber}`;

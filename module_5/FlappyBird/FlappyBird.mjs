@@ -44,17 +44,27 @@ export const GameProps = {
   obstacles: [],
   baits: [],
   menu: null,
+  score: 0,
+  bestScore: 0,
+  sounds: {countdown: null, gameOver: null, food: null, dead: null, running: null}
 };
 
 //--------------- Functions ----------------------------------------------//
 
 function playSound(aSound) {
   if (!GameProps.soundMuted) {
-    aSound.play();
+    if (aSound) {
+      aSound.stop(); // Pause the sound in case it's still playing
+      aSound.currentTime = 0; // Reset
+      aSound.play()
+    } else {
+      console.error("Sound object is null or undefined.");
+    }
   } else {
-    aSound.pause();
+    console.log("Sound is muted.");
   }
 }
+
 
 function loadGame() {
   console.log("Game ready to load");
@@ -69,6 +79,13 @@ function loadGame() {
   pos.y = 100;
   GameProps.hero = new THero(spcvs, SpriteInfoList.hero1, pos);
 
+  GameProps.sounds.running = new libSound.TSoundFile("./Media/running.mp3");
+  GameProps.sounds.countdown = new libSound.TSoundFile("./Media/countdown.mp3");
+  GameProps.sounds.gameOver = new libSound.TSoundFile("./Media/gameOver.mp3");
+  GameProps.sounds.food = new libSound.TSoundFile("./Media/food.mp3");
+  GameProps.sounds.dead = new libSound.TSoundFile("./Media/heroIsDead.mp3");
+  GameProps.sounds.flap = new libSound.TSoundFile("./Media/flap.mp3");
+
   requestAnimationFrame(drawGame);
   setInterval(animateGame, 10);
 
@@ -77,8 +94,14 @@ function loadGame() {
 
 export function startGame() {
   GameProps.status = EGameStatus.playing;
+  GameProps.score = 0;
+  GameProps.hero = new THero(spcvs, SpriteInfoList.hero1, new lib2d.TPosition(100, 100));
+  GameProps.obstacles = [];
+  GameProps.baits = [];
+  GameProps.menu.reset();
   spawnObstacle(); 
   spawnBait();
+  GameProps.sounds.running.play();
 }
 
 function drawGame() {
@@ -119,10 +142,18 @@ function animateGame() {
         GameProps.ground.posX = 0;
       }
       GameProps.hero.update();
+      playSound(GameProps.sounds.dead);
       let delObstacleIndex = -1;
+      
       for (let i = 0; i < GameProps.obstacles.length; i++) {
         const obstacle = GameProps.obstacles[i];
         obstacle.update();
+        if(obstacle.right < GameProps.hero.left && !obstacle.hasPassed) {
+          //Congratulations, you have passed the obstacle
+          GameProps.menu.incScore(20);
+          console.log("Score: " + GameProps.score);
+          obstacle.hasPassed = true;
+        }
         if (obstacle.posX < -100) {
           delObstacleIndex = i;
         }
@@ -139,11 +170,15 @@ function animateGame() {
         const posBait = bait.getCenter();
         const dist = posHero.distanceToPoint(posBait);
         if (dist < 15) {
+          console.log("Bait hit detected. Playing sound...");
+          playSound(GameProps.sounds.food);
           delBaitIndex = i;
+          break;
         }
       }
       if (delBaitIndex >= 0) {
         GameProps.baits.splice(delBaitIndex, 1);
+        GameProps.menu.incScore(10);
       }
       break;
       case EGameStatus.idle:
@@ -189,17 +224,28 @@ function setDayNight() {
   if (rbDayNight[0].checked) {
     GameProps.dayTime = true;
     console.log("Day time");
+    GameProps.background.index = 0; // Set background to daytime sprite
+    updateObstacleNightMode(false); // Set obstacles to day mode
   } else {
     GameProps.dayTime = false;
     console.log("Night time");
+    GameProps.background.index = 1; // Set background to nighttime sprite
+    updateObstacleNightMode(true); // Set obstacles to night mode
   }
-} // end of setDayNight
+}
+
+function updateObstacleNightMode(isNight) {
+  for (let i = 0; i < GameProps.obstacles.length; i++) {
+    GameProps.obstacles[i].setNightMode(isNight); // Update the mode for each obstacle
+  }
+}
 
 function onKeyDown(aEvent) {
   switch (aEvent.code) {
     case "Space":
       if (!GameProps.hero.isDead) {
         GameProps.hero.flap();
+        playSound(GameProps.sounds.flap);
       }
       break;
   }

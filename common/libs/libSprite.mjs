@@ -140,6 +140,14 @@ class TSprite {
     return this.#pos;
   }
 
+  get left() {
+    return this.#pos.x;
+  }
+
+  get right() {
+    return this.#pos.x + this.#spi.width;
+  }
+
   get index() {
     return this.#index;
   }

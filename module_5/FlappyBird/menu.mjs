@@ -2,7 +2,7 @@
 import lib2d from "../../common/libs/lib2d.mjs";
 import libSound from "../../common/libs/libSound.mjs";
 import libSprite from "../../common/libs/libSprite.mjs";
-import { SpriteInfoList, GameProps, EGameStatus, startGame } from "./FlappyBird.mjs";
+import { SpriteInfoList, GameProps, EGameStatus, startGame, } from "./FlappyBird.mjs";
 
 /*
 Dere skal flytte FlappyBird Spriten til en fornuftig plass på skjermen.
@@ -13,6 +13,8 @@ let Score2 = 0;
 let HighScore1 = 9;
 let HighScore2 = 9;
 
+
+
 export class TMenu {
   #spFlappyBird;
   #spButtonPlay;
@@ -20,10 +22,9 @@ export class TMenu {
   #spInfoText;
   #spGameOver;
   #spMedal;
-  #spScore1;
-  #spScore2;
-  #spHighScore1;
-  #spHighScore2;
+  #spScores;
+  #spHighScore;
+  #ranking = { first: 1, second: 2, third: 3 };
 
   #spcvs;
   #activeSprite;
@@ -31,7 +32,7 @@ export class TMenu {
     this.#spcvs = aSpriteCanvas;
     const pos = new lib2d.TPosition(200, 100);
     //status cheat
-    GameProps.status = EGameStatus.gameOver;
+    //GameProps.status = EGameStatus.gameOver;
 
     this.#spFlappyBird = new libSprite.TSprite(aSpriteCanvas, SpriteInfoList.flappyBird, pos);
     pos.y = 200;
@@ -39,21 +40,27 @@ export class TMenu {
 
     this.#spButtonPlay = new libSprite.TSprite(aSpriteCanvas, SpriteInfoList.buttonPlay, pos);
 
-    pos.x = 340;
-    pos.y = 135;
-    this.#spScore1 = new libSprite.TSprite(aSpriteCanvas, SpriteInfoList.numberSmall, pos);
+    this.#spScores = [];
+    let score = 0; // Ensure score is defined and initialized
+    let scoreStr = score.toString();
+    for (let i = 0; i < scoreStr.length; i++) {
+      pos.x = 340 - (i * 15);
+      pos.y = 135;
+      let spScore = new libSprite.TSprite(aSpriteCanvas, SpriteInfoList.numberSmall, pos);
+      spScore.index = parseInt(scoreStr[scoreStr.length - 1 - i]);
+      this.#spScores.push(spScore);
+    }
 
-    pos.x = 325;
-    pos.y = 135;
-    this.#spScore2 = new libSprite.TSprite(aSpriteCanvas, SpriteInfoList.numberSmall, pos);
-
-    pos.x = 340;
-    pos.y = 175;
-    this.#spHighScore1 = new libSprite.TSprite(aSpriteCanvas, SpriteInfoList.numberSmall, pos);
-
-    pos.x = 325;
-    pos.y = 175;
-    this.#spHighScore2 = new libSprite.TSprite(aSpriteCanvas, SpriteInfoList.numberSmall, pos);
+    this.#spHighScore = [];
+    let scoreBest = 0; // Example score, replace with actual score variable
+    let scoreBestStr = scoreBest.toString();
+    for (let i = 0; i < scoreBestStr.length; i++) {
+      pos.x = 340 - (i * 15);
+      pos.y = 175;
+      let spScoreBest = new libSprite.TSprite(aSpriteCanvas, SpriteInfoList.numberSmall, pos);
+      spScoreBest.index = parseInt(scoreBestStr[scoreBestStr.length - 1 - i]);
+      this.#spHighScore.push(spScoreBest);
+    }
 
     pos.x = 200;
     pos.y = 100;
@@ -74,6 +81,7 @@ export class TMenu {
     this.#spcvs.addEventListener("mousemove", this.#onMouseMove);
     this.#spcvs.addEventListener("click", this.#onClick);
     this.#activeSprite = null; //Vi har ingen aktive sprite enda, når musen er over en sprite setter vi denne til den aktive sprite
+
   }
 
   draw() {
@@ -83,6 +91,7 @@ export class TMenu {
         this.#spButtonPlay.draw();
         break;
       case EGameStatus.getReady:
+        this.#spInfoText.index = 0;
         this.#spInfoText.draw();
         this.#spNumber.draw();
         break;
@@ -95,18 +104,48 @@ export class TMenu {
         this.#spInfoText.index = 1;
         this.#spInfoText.posX = 165;
         this.#spInfoText.posY = 50;
+        this.#spInfoText.draw();
         this.#spMedal.draw();
-        this.#spScore1.index = Score1;
-        this.#spScore1.draw();
-        this.#spScore2.index = Score2;
-        this.#spScore2.draw();
-        this.#spHighScore1.index = HighScore1;
-        this.#spHighScore1.draw();
-        this.#spHighScore2.index = HighScore2;
-        this.#spHighScore2.draw();
+
+        // Update the #spScores array with the current score
+        const pos = new lib2d.TPosition(340, 135); // Adjust position as needed
+        const scoreStr = GameProps.score.toString();
+        this.#spScores = []; // Clear the previous score
+        for (let i = 0; i < scoreStr.length; i++) {
+          pos.x = 340 - i * 15; // Adjust spacing as needed
+          const spScore = new libSprite.TSprite(this.#spcvs, SpriteInfoList.numberSmall, pos);
+          spScore.index = parseInt(scoreStr[scoreStr.length - 1 - i]);
+          this.#spScores.push(spScore);
+        }
+
+        this.#spScores.forEach(spScore => spScore.draw());
+        this.#spHighScore.forEach(spScoreBest => spScoreBest.draw());
+        break;
+
+      case EGameStatus.playing:
         break;
     }
   } // end of draw
+
+  incScore(aScore) {
+    GameProps.score += aScore;
+    if (GameProps.score > this.#ranking.first) {
+      this.#ranking.third = this.#ranking.second;
+      this.#ranking.second = this.#ranking.first;
+      this.#ranking.first = GameProps.score;
+      GameProps.bestScore = this.#ranking.first;
+  } else if (GameProps.score > this.#ranking.second) {
+      this.#ranking.third = this.#ranking.second;
+      this.#ranking.second = GameProps.score;
+  } else if (GameProps.score > this.#ranking.third) {
+      this.#ranking.third = GameProps.score;
+    }
+  } // end of incScore
+
+  reset() {
+    GameProps.score = 0;
+    this.#spNumber.index = 3;
+  }
 
   //Ikke eksamensrelevant kode, men viktig for eventer i canvas
   #onMouseMove = (aEvent) => {
